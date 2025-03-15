@@ -1,23 +1,34 @@
-import setup_sd
-from setup_buttons import setup_buttons
-import setup_wifi
-import idle_mode  # Importamos el módulo de modo reposo
 import machine
 import time
+from setup import setup_sd, setup_wifi, setup_buttons
+from modules import idle_mode
 
-# **Inicialización de hardware**
+# **Montar SD card**
+try:
+    setup_sd.mount_sd()
+    print("✅ SD card montada correctamente.")
+except Exception as e:
+    print(f"⚠️ Error montando SD: {e}")
+
+# **Configurar y conectar WiFi**
 wlan = setup_wifi.connect_wifi()
-led = machine.Pin(2, machine.Pin.OUT)
-
-setup_buttons()  # Configurar los botones, pero solo se usarán en idle_mode
-
-if wlan and wlan.isconnected():  
-    print("✅ Wi-Fi conectado. Iniciando modo reposo...")
-    idle_mode.start()  # Entra en modo reposo y espera interrupciones
+if wlan and wlan.isconnected():
+    print("✅ WiFi conectado.")
 else:
-    print("❌ No hay conexión Wi-Fi. LED apagado.")
-
-    # **Parpadeo de LED si no hay conexión Wi-Fi**
-    for _ in range(10):  
-        setup_wifi.blink_led(2, 0.5)  # Indica fallo en Wi-Fi
+    print("❌ No hay conexión WiFi. Intentando de nuevo...")
+    
+    for _ in range(5):
+        setup_wifi.blink_led(2, 0.5)
         time.sleep(0.5)
+    
+    # Si después de 5 intentos sigue sin conectarse, reinicia el ESP32
+    print("🔄 Reiniciando ESP32...")
+    time.sleep(2)
+    machine.reset()
+
+# **Configurar botones**
+setup_buttons()
+
+# **Entrar en modo de espera**
+print("⏳ Entrando en modo reposo...")
+idle_mode.start()

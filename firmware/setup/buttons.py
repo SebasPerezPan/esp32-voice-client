@@ -46,6 +46,7 @@ def _start_recording():
     """Llama a sent_mode para iniciar la grabación"""
     from modes import sent_mode  # 🔹 Importación dentro de función para evitar ciclos
     sent_mode.sent_mode()
+    
 
 def disable_buttons():
     """Bloquea los botones temporalmente"""
@@ -57,6 +58,7 @@ def setup_buttons():
     for pin in BUTTON_PINS:
         pin_object=machine.Pin(pin, machine.Pin.IN, machine.Pin.PULL_UP)
         pin_object.irq(trigger=machine.Pin.IRQ_FALLING, handler=lambda p: button_pressed(p))
+        #necesito saber si irq por cada vez que el trigger se activa crea o trabaja en un  subproceso
         buttons[pin_object] = pin
     print("✅ Botones configurados correctamente.")
 

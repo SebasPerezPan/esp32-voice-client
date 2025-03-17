@@ -17,7 +17,7 @@ def button_pressed(pin_obj):
     """Maneja la pulsación de un botón"""
     global last_press_time
 
-    pin_number = BUTTON_PINS[[buttons[p] for p in BUTTON_PINS].index(pin_obj)]
+    pin_number = buttons[pin_obj]
 
 
     current_time = time.ticks_ms()
@@ -25,6 +25,7 @@ def button_pressed(pin_obj):
         return  # Ignora si se presiona antes de 2 segundos
 
     last_press_time = current_time
+    #me gustaria saber porque esto
     _thread.start_new_thread(disable_buttons, ())
 
     if state.recording:
@@ -54,8 +55,9 @@ def disable_buttons():
 def setup_buttons():
     """Configura los botones con interrupciones"""
     for pin in BUTTON_PINS:
-        buttons[pin] = machine.Pin(pin, machine.Pin.IN, machine.Pin.PULL_UP)
-        buttons[pin].irq(trigger=machine.Pin.IRQ_FALLING, handler=lambda p: button_pressed(p))
+        pin_object=machine.Pin(pin, machine.Pin.IN, machine.Pin.PULL_UP)
+        pin_object.irq(trigger=machine.Pin.IRQ_FALLING, handler=lambda p: button_pressed(p))
+        buttons[pin_object] = pin
     print("✅ Botones configurados correctamente.")
 
 

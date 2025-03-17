@@ -1,7 +1,7 @@
 import machine
 import time
 import _thread
-import firmware.modes.state as state
+from modes import state
 
 # Lista de pines asignados a los botones
 BUTTON_PINS = [32, 33, 14, 25, 27]  
@@ -17,7 +17,8 @@ def button_pressed(pin_obj):
     """Maneja la pulsación de un botón"""
     global last_press_time
 
-    pin_number = pin_obj.pin()  # Obtenemos el número del GPIO
+    pin_number = BUTTON_PINS[[buttons[p] for p in BUTTON_PINS].index(pin_obj)]
+
 
     current_time = time.ticks_ms()
     if time.ticks_diff(current_time, last_press_time) < 2000:
@@ -36,13 +37,13 @@ def button_pressed(pin_obj):
 
 def _stop_recording():
     """Llama a sent_mode para detener la grabación"""
-    import sent_mode  # 🔹 Importación dentro de función para evitar ciclos
+    from modes import sent_mode  # 🔹 Importación dentro de función para evitar ciclos
     sent_mode.mic.stop_recording()
     state.recording = False
 
 def _start_recording():
     """Llama a sent_mode para iniciar la grabación"""
-    import sent_mode  # 🔹 Importación dentro de función para evitar ciclos
+    from modes import sent_mode  # 🔹 Importación dentro de función para evitar ciclos
     sent_mode.sent_mode()
 
 def disable_buttons():
@@ -54,7 +55,8 @@ def setup_buttons():
     """Configura los botones con interrupciones"""
     for pin in BUTTON_PINS:
         buttons[pin] = machine.Pin(pin, machine.Pin.IN, machine.Pin.PULL_UP)
-    buttons[pin].irq(trigger=machine.Pin.IRQ_FALLING, handler=lambda p: button_pressed(p))
+        buttons[pin].irq(trigger=machine.Pin.IRQ_FALLING, handler=lambda p: button_pressed(p))
     print("✅ Botones configurados correctamente.")
+
 
 

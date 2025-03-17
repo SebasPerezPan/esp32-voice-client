@@ -1,10 +1,8 @@
 import os
 import time
 import websocket
-import received_mode
-import idle_mode
-import state
-import setup_mic  # Importamos la configuración del micrófono
+from modes import idle_mode, state
+from setup import mic  # Importamos la configuración del micrófono
 
 def sent_mode(sock=None):  # 🔹 Permitimos que el socket sea opcional
     if sock is None:
@@ -17,7 +15,7 @@ def sent_mode(sock=None):  # 🔹 Permitimos que el socket sea opcional
     file_path = "/sd/home/serverRequest/audioRequest.wav"
     
     # Inicializar micrófono
-    mic = setup_mic.init_mic()
+    microphone = mic.init_mic()
     
     # Tamaño del buffer
     buffer_size = 4096  # Ajusta el tamaño según la memoria disponible
@@ -32,7 +30,7 @@ def sent_mode(sock=None):  # 🔹 Permitimos que el socket sea opcional
 
             while state.recording:  # Se graba mientras state.recording sea True
                 # Leer datos del micrófono al buffer y escribir en el archivo
-                num_bytes = mic.readinto(audio_buffer)
+                num_bytes = microphone.readinto(audio_buffer)
                 if num_bytes:
                     f.write(audio_buffer[:num_bytes])
                 
@@ -48,7 +46,7 @@ def sent_mode(sock=None):  # 🔹 Permitimos que el socket sea opcional
     except Exception as e:
         print(f"❌ Error durante la grabación: {e}")
         state.recording = False
-        mic.deinit()  # Liberar el micrófono
+        microphone.deinit()  # Liberar el micrófono
         idle_mode.idle_mode(sock)
         return
 
@@ -68,12 +66,13 @@ def sent_mode(sock=None):  # 🔹 Permitimos que el socket sea opcional
     except Exception as e:
         print(f"❌ Error enviando el archivo: {e}")
         print("🔄 Regresando a modo idle.")
-        mic.deinit()  # Liberar el micrófono antes de salir
+        microphone.deinit()  # Liberar el micrófono antes de salir
         idle_mode.start(sock)
         return
 
     # Transición a received_mode
     print("📥 Cambiando a modo recepción...")
-    mic.deinit()  # Liberar el micrófono antes de cambiar de modo
+    microphone.deinit()  # Liberar el micrófono antes de cambiar de modo
     received_mode.start(sock)
+
 

@@ -1,45 +1,51 @@
-import setup_wifi
-from setup_server import connect_server
-from setup_buttons import setup_buttons
 import time
-import state
+from setup.buttons import setup_buttons
+from setup.wifi import connect_wifi, get_wlan
+from setup.server import connect_server
+from modes import state
 
-def idle_mode():
+def start_idle_mode():
     """
     Modo reposo: mantiene la conexión Wi-Fi y con el servidor activa,
     y espera la activación por botones.
     """
     print("🟡 Entrando en modo reposo...")
 
-    # Intentar conectar al Wi-Fi
-    wlan = setup_wifi.connect_wifi()
+    # 🔄 Intentar conectar a Wi-Fi
+    wlan = connect_wifi()
     if not wlan or not wlan.isconnected():
-        print("❌ No hay conexión Wi-Fi. Reintentando...")
-        return  # Se reintentará desde boot.py
+        print("❌ No hay conexión Wi-Fi. Intentando conectar...")
+        wlan = connect_wifi()
+        if not wlan or not wlan.isconnected():
+            print("🔄 No se pudo conectar a Wi-Fi. Retornando a boot...")
+            return
 
-    # Intentar conectar al servidor
+    # 🔄 Intentar conectar al servidor
     sock = connect_server()
     if not sock:
-        print("❌ No hay conexión con el servidor. Reintentando...")
-        return  # Se reintentará desde boot.py
+        print("❌ No hay conexión con el servidor. Intentando de nuevo más tarde...")
+        return
 
-    state.recording = False  # 🔹 Cambiamos el estado global
+    # ✅ Estado inicial
+    state.recording = False  
     setup_buttons()
 
     while True:
+        # 📡 Verificar Wi-Fi
         if not wlan.isconnected():
-            print("❌ Conexión Wi-Fi perdida. Intentando reconectar...")
-            wlan = setup_wifi.connect_wifi()
-            if not wlan.isconnected():
+            print("❌ Wi-Fi perdido. Intentando reconectar...")
+            wlan = connect_wifi()
+            if not wlan or not wlan.isconnected():
                 print("🔄 No se pudo reconectar. Retornando a boot...")
                 return
 
-        if sock:  # Comprobar si el socket sigue activo
+        # 🔌 Verificar conexión con el servidor
+        if sock:
             try:
-                sock.send(b'PING')  # Intento de comunicación básica
+                sock.send(b'PING')  # Test de conexión
             except Exception:
-                print("❌ Conexión con el servidor perdida. Intentando reconectar...")
-                sock = setup_server.connect_to_server()
+                print("❌ Conexión con el servidor perdida. Reintentando...")
+                sock = connect_server()
                 if not sock:
                     print("🔄 No se pudo reconectar con el servidor. Retornando a boot...")
                     return

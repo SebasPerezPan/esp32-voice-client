@@ -21,10 +21,12 @@ def start_idle_mode():
             return
 
     # 🔄 Intentar conectar al servidor
-    sock = connect_server()
-    if not sock:
-        print("❌ No hay conexión con el servidor. Intentando de nuevo más tarde...")
-        return
+    #deprecado utilizar requests
+    #sock = connect_server()
+    
+    #if not sock:
+        #print("❌ No hay conexión con el servidor. Intentando de nuevo más tarde...")
+        #return
 
     # ✅ Estado inicial
     state.recording = False  
@@ -40,15 +42,7 @@ def start_idle_mode():
                 return
 
         # 🔌 Verificar conexión con el servidor
-        if sock:
-            try:
-                sock.send(b'PING')  # Test de conexión
-            except Exception:
-                print("❌ Conexión con el servidor perdida. Reintentando...")
-                sock = connect_server()
-                if not sock:
-                    print("🔄 No se pudo reconectar con el servidor. Retornando a boot...")
-                    return
+      #deprecado, porfavor usar libreria requests
 
         time.sleep(1)  # Evita sobrecargar el ESP32 con verificaciones constantes
 

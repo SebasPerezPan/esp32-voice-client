@@ -67,6 +67,7 @@ def sent_mode(sock=None):  # 🔹 Permitimos que el socket sea opcional
         print(f"❌ Error enviando el archivo: {e}")
         print("🔄 Regresando a modo idle.")
         microphone.deinit()  # Liberar el micrófono antes de salir
+        #siento que esto puede generar un problema de memorly leak, siendo que idle mode ya esta corriendo
         idle_mode.start(sock)
         return
 

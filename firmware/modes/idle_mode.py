@@ -21,10 +21,12 @@ def start_idle_mode():
             return
 
     # 🔄 Intentar conectar al servidor
-    sock = connect_server()
-    if not sock:
-        print("❌ No hay conexión con el servidor. Intentando de nuevo más tarde...")
-        return
+    #deprecado utilizar requests
+    #sock = connect_server()
+    
+    #if not sock:
+        #print("❌ No hay conexión con el servidor. Intentando de nuevo más tarde...")
+        #return
 
     # ✅ Estado inicial
     state.recording = False  

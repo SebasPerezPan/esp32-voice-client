@@ -56,7 +56,9 @@ def sent_mode(sock=None):  # 🔹 Permitimos que el socket sea opcional
     try:
         with open(file_path, "rb") as f:
             data = f.read()
-            sock.send(data)
+            #deprecado, porfavor utilizar la libreria requests y de una vez guardar el archivo de audio en este punto del codigo atravez de una solicitud post al backend
+            #sock.send(data)
+        
         print("📤 Archivo enviado al servidor.")
 
         # Eliminar el archivo solo si se envió correctamente
